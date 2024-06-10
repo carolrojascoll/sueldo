@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr">
+     <head>
+          <meta charset="utf-8">
+          <title>Pagar sueldo</title>
+          <link rel="icon" type="image/png" href="img/ninja.png">
+          <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+          <link rel="stylesheet" href="css/estilo_form.css" type="text/css">
+          <link rel="stylesheet" href="css/estilos.css" type="text/css">
+
+          <script src="js/funciones.js"></script>
+
+          <!-- Alertify -->
+          <link href="alertify/alertify.min.css" rel="stylesheet" type="text/css">
+          <link href="alertify/default.min.css" rel="stylesheet" type="text/css">
+          <script src="alertify/alertify.min.js"></script>
+     </head>
+     <body>
+          <form id="pago" action="#" method="post" onsubmit="return calcularSueldo();">
+               <div class="cols">
+                    <!-- PRIMERA COLUMNA -->
+                    <div class="col1">
+                         <label>N° DE C.I.:</label>
+                         <input type="number" id="cedula" min="1000000" max="9000000" required>
+                         <label>NOMBRE:</label>
+                         <input type="text" pattern="[A-Z ]{3,25}" id="nombre" minlength="3" maxlength="25" onkeyup="mayusculas(this);" class="mayusc" required>
+                         <label>APELLIDO:</label>
+                         <input type="text" pattern="[A-Z ]{3,25}" id="apellido" minlength="3" maxlength="25" onkeyup="mayusculas(this);" class="mayusc" required>
+                         <label>FEC. DE NAC.:</label>
+                         <input type="date" id="fecha" min="2000-01-01" required>
+                         <label>MES PAGADO:</label>
+                         <select id="mes">
+                              <option value="1">Enero</option>
+                              <option value="2">Febrero</option>
+                              <option value="3">Marzo</option>
+                              <option value="4">Abril</option>
+                              <option value="5">Mayo</option>
+                              <option value="6">Junio</option>
+                              <option value="7">Julio</option>
+                              <option value="8">Agosto</option>
+                              <option value="9">Septiembre</option>
+                              <option value="10">Octubre</option>
+                              <option value="11">Noviembre</option>
+                              <option value="12">Diciembre</option>
+                         </select>
+                         <label>AÑO PAGADO:</label>
+                         <input type="number" id="anio" min="2000" class="al-der" required>
+                         <label>FEC. DE PAGO:</label>
+                         <input type="date" id="fecpago" min="2020-01-01" required>
+                         <label>HORAS TRABAJADAS:</label>
+                         <input type="number" id="horas" min="1" max="300" class="al-der" required>
+                         <label>MONTO POR HORA:</label>
+                         <input type="text" id="monto" class="al-der" minlength="1" maxlength="6" onkeyup="estiloMillares(this)">
+                    </div>
+                    <!-- SEGUNDA COLUMNA -->
+                    <div class="col2">
+                         <label>SUELDO BRUTO:</label>
+                         <input type="text" id="bruto" class="al-der" readonly>
+                         <label>CANT. HS. EXTRAS AL DOBLE:</label>
+                         <input type="text" id="hsdoble" class="al-der" readonly>
+                         <label>CANT. HS. EXTRAS AL TRIPLE:</label>
+                         <input type="text" id="hstriple" class="al-der" readonly>
+                         <label>SUELDO EXTRA AL DOBLE:</label>
+                         <input type="text" id="sueldodoble" class="al-der" readonly>
+                         <label>SUELDO EXTRA AL TRIPLE:</label>
+                         <input type="text" id="sueldotriple" class="al-der" readonly>
+                         <label>SUELDO NETO:</label>
+                         <input type="text" id="neto" class="al-der" readonly>
+                         <br>
+                         <button type="submit" class="botonGrande iconoDinero">Calcular sueldo</button>
+                         <br>
+                         <button type="button" class="botonGrande iconoLimpiar" onclick="limpiar();">Limpiar campos</button>
+                    </div>
+               </div>
+          </form>
+
+          <script type="text/javascript">
+               limpiarCampos();
+               //=============================================================//
+               function limpiarCampos(){
+                    document.getElementById("pago").reset();
+                    hoy = new Date();
+                    a = hoy.getFullYear();
+                    document.getElementById("anio").value = a;
+                    m = hoy.getMonth()+1;
+                    document.getElementById("mes").value = m;
+                    d = hoy.getDate();
+                    if (d < 10){
+                         d = "0"+d;
+                    }
+                    if (m < 10){
+                         m = "0"+m;
+                    }
+                    document.getElementById("fecpago").value = a+"-"+m+"-"+d;
+                    document.getElementById("cedula").focus();
+               }
+               //=============================================================//
+               function calcularSueldo(){
+                    horas = document.getElementById("horas").value;
+                    monto = document.getElementById("monto").value;
+                    monto = monto.replace(/\./g,"") //Elimina todos los puntos de la cadena
+                    if (monto < 10000 || monto > 100000){
+                         alertify.error("Ingrese un monto entre 10.000 y 100.000");
+                         document.getElementById("monto").focus();
+                    }else{
+                         canHsDoble = 0;
+                         canHsTriple = 0;
+                         hsExtras = horas - 160;
+                         if (hsExtras > 0){
+                              sBruto = 160 * monto;
+                              if (hsExtras > 10){
+                                   canHsDoble = 10;
+                                   canHsTriple = hsExtras - 10;
+                              }else{
+                                   canHsDoble = hsExtras;
+                              }
+                         }else{
+                              sBruto = horas * monto;
+                         }
+                         sExDoble = canHsDoble * monto * 2;
+                         sExTriple = canHsTriple * monto * 3;
+                         sNeto = sBruto + sExDoble + sExTriple;
+                         document.getElementById("bruto").value = formatearNumero(sBruto);
+                         document.getElementById("hsdoble").value = formatearNumero(canHsDoble);
+                         document.getElementById("hstriple").value = formatearNumero(canHsTriple);
+                         document.getElementById("sueldodoble").value = formatearNumero(sExDoble);
+                         document.getElementById("sueldotriple").value = formatearNumero(sExTriple);
+                         document.getElementById("neto").value = formatearNumero(sNeto);
+                         alertify.alert("Pagar sueldo", "Pago de sueldo exitoso!");
+                    }
+                    return false;
+               }
+               //=============================================================//
+               function limpiar(){
+                    limpiarCampos();
+                    alertify.dialog("alert").set(
+                         {transition:"zoom",
+                          title:"Pago de sueldo",
+                          message: "Ahora puede iniciar otro pago de sueldo"
+                         }
+                    ).show().set("label", "Aceptar");
+               }
+               //transition: slide, zoom, flipx, flipy, fade, pulse
+               //=============================================================//
+          </script>
+     </body>
+</html>
